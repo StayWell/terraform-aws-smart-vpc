@@ -5,13 +5,13 @@
 resource "aws_vpc" "this" {
   cidr_block           = "${var.cidr_starting_ip}/16"
   enable_dns_hostnames = true
-  tags                 = "${merge(map("Name", var.env), local.default_tags, var.additional_tags)}"
+  #tags                 = "${merge(map("Name", var.env), local.default_tags, var.additional_tags)}"
 }
 
 resource "aws_vpc_dhcp_options" "this" {
   domain_name         = "${var.region}.compute.internal"
   domain_name_servers = ["AmazonProvidedDNS"]
-  tags                = "${merge(map("Name", var.env), local.default_tags, var.additional_tags)}"
+  #tags                = "${merge(map("Name", var.env), local.default_tags, var.additional_tags)}"
 }
 
 resource "aws_vpc_dhcp_options_association" "this" {
@@ -65,7 +65,7 @@ resource "aws_route_table_association" "public" {
 
 resource "aws_eip" "this" {
   count = "${length(data.aws_availability_zones.this.names)}"
-  tags  = "${merge(map("Name", "${var.env}-nat-${count.index}"), map("Type", "NAT"), local.default_tags, var.additional_tags)}"
+  #tags  = "${merge(map("Name", "${var.env}-nat-${count.index}"), map("Type", "NAT"), local.default_tags, var.additional_tags)}"
 }
 
 resource "aws_nat_gateway" "this" {
