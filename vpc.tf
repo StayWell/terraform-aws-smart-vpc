@@ -39,7 +39,7 @@ resource "aws_internet_gateway" "this" {
 
 resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.this.id}"
-  tags   = "${merge(map("Name", var.env), map("Type", "Public"), local.default_tags, var.additional_tags)}"
+  tags   = "${merge(map("Name", "${var.env}-public"), map("Type", "Public"), local.default_tags, var.additional_tags)}"
 }
 
 resource "aws_route" "public" {
@@ -53,7 +53,7 @@ resource "aws_subnet" "public" {
   vpc_id            = "${aws_vpc.this.id}"
   cidr_block        = "${cidrsubnet("${var.cidr_starting_ip}/16", 4, count.index)}"
   availability_zone = "${data.aws_availability_zones.this.names[count.index]}"
-  tags              = "${merge(map("Name", var.env), map("Type", "Public"), local.default_tags, var.additional_tags)}"
+  tags              = "${merge(map("Name", "${var.env}-public-${count.index}"), map("Type", "Public"), local.default_tags, var.additional_tags)}"
 }
 
 resource "aws_route_table_association" "public" {
@@ -81,7 +81,7 @@ resource "aws_nat_gateway" "this" {
 resource "aws_route_table" "private" {
   count  = "${length(data.aws_availability_zones.this.names)}"
   vpc_id = "${aws_vpc.this.id}"
-  tags   = "${merge(map("Name", var.env), map("Type", "Private"), local.default_tags, var.additional_tags)}"
+  tags   = "${merge(map("Name", "${var.env}-private-${count.index}"), map("Type", "Private"), local.default_tags, var.additional_tags)}"
 }
 
 resource "aws_route" "private" {
@@ -96,7 +96,7 @@ resource "aws_subnet" "private" {
   vpc_id            = "${aws_vpc.this.id}"
   cidr_block        = "${cidrsubnet("${var.cidr_starting_ip}/16", 4, count.index + length(data.aws_availability_zones.this.names))}"
   availability_zone = "${data.aws_availability_zones.this.names[count.index]}"
-  tags              = "${merge(map("Name", var.env), map("Type", "Private"), local.default_tags, var.additional_tags)}"
+  tags              = "${merge(map("Name", "${var.env}-private-${count.index}"), map("Type", "Private"), local.default_tags, var.additional_tags)}"
 }
 
 resource "aws_route_table_association" "private" {
