@@ -12,7 +12,7 @@ variable "env" {
 
 variable "additional_tags" {
   description = "Additional tags to be applied to all resources"
-  default     = []
+  default     = {}
 }
 
 variable "cidr_starting_ip" {
