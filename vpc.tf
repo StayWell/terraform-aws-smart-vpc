@@ -8,8 +8,11 @@ resource "aws_vpc" "this" {
   tags                 = "${merge(map("Name", var.env), local.default_tags, var.additional_tags)}"
 }
 
+# load current aws region
+data "aws_region" "this" {}
+        
 resource "aws_vpc_dhcp_options" "this" {
-  domain_name         = "${var.region}.compute.internal"
+  domain_name         = "${data.aws_region.this.name}.compute.internal"
   domain_name_servers = ["AmazonProvidedDNS"]
   tags                = "${merge(map("Name", var.env), local.default_tags, var.additional_tags)}"
 }
