@@ -1,2 +1,2 @@
-# terraform-aws-core
-Heavily opinionated module for building low level core infrastructure in AWS
+# terraform-aws-smart-vpc
+Creates a VPC with public and private subnets in each availability zone in the region
