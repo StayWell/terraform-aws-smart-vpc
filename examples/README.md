@@ -1,6 +1,6 @@
 # simple.tf
 
-This is the most basic implementation of this module
+Demonstrates this module being used with zero inputs
 
 # standard.tf
 
