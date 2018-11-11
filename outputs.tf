@@ -8,6 +8,11 @@ output "cidr_block" {
   value       = "${aws_vpc.this.cidr_block}"
 }
 
+output "all_subnets_ids" {
+  description = "List of created public subnet IDs"
+  value       = ["${aws_subnet.public.*.id}", "${aws_subnet.private.*.id}"]
+}
+
 output "public_subnets_ids" {
   description = "List of created public subnet IDs"
   value       = ["${aws_subnet.public.*.id}"]
@@ -16,6 +21,11 @@ output "public_subnets_ids" {
 output "private_subnets_ids" {
   description = "List of created private subnet IDs"
   value       = ["${aws_subnet.private.*.id}"]
+}
+
+output "all_route_table_ids" {
+  description = "List of created private route table IDs"
+  value       = ["${aws_route_table.public.id}", "${aws_route_table.private.*.id}"]
 }
 
 output "public_route_table_id" {
