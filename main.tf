@@ -10,7 +10,7 @@ resource "aws_vpc" "this" {
 
 # load current aws region
 data "aws_region" "this" {}
-        
+
 resource "aws_vpc_dhcp_options" "this" {
   domain_name         = "${data.aws_region.this.name}.compute.internal"
   domain_name_servers = ["AmazonProvidedDNS"]
@@ -49,7 +49,7 @@ resource "aws_route" "public" {
 }
 
 resource "aws_subnet" "public" {
-  count             = "${length(data.aws_availability_zones.this.names)}"
+  count             = "${var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)}"
   vpc_id            = "${aws_vpc.this.id}"
   cidr_block        = "${cidrsubnet("${var.cidr_starting_ip}/16", 4, count.index)}"
   availability_zone = "${data.aws_availability_zones.this.names[count.index]}"
@@ -57,7 +57,7 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  count          = "${length(data.aws_availability_zones.this.names)}"
+  count          = "${var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${aws_route_table.public.id}"
 }
@@ -67,40 +67,40 @@ resource "aws_route_table_association" "public" {
 #################################################
 
 resource "aws_eip" "this" {
-  count = "${length(data.aws_availability_zones.this.names)}"
+  count = "${var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)}"
   tags  = "${merge(map("Name", "${var.env}-nat-${count.index}"), map("Type", "NAT"), var.tags)}"
 }
 
 resource "aws_nat_gateway" "this" {
-  count         = "${length(data.aws_availability_zones.this.names)}"
+  count         = "${var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)}"
   allocation_id = "${element(aws_eip.this.*.id, count.index)}"
   subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
   tags          = "${merge(map("Name", "${var.env}-${count.index}"), var.tags)}"
 }
 
 resource "aws_route_table" "private" {
-  count  = "${length(data.aws_availability_zones.this.names)}"
+  count  = "${var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)}"
   vpc_id = "${aws_vpc.this.id}"
   tags   = "${merge(map("Name", "${var.env}-private-${count.index}"), map("Type", "Private"), var.tags)}"
 }
 
 resource "aws_route" "private" {
-  count                  = "${length(data.aws_availability_zones.this.names)}"
+  count                  = "${var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)}"
   route_table_id         = "${element(aws_route_table.private.*.id, count.index)}"
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = "${element(aws_nat_gateway.this.*.id, count.index)}"
 }
 
 resource "aws_subnet" "private" {
-  count             = "${length(data.aws_availability_zones.this.names)}"
+  count             = "${var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)}"
   vpc_id            = "${aws_vpc.this.id}"
-  cidr_block        = "${cidrsubnet("${var.cidr_starting_ip}/16", 4, count.index + length(data.aws_availability_zones.this.names))}"
+  cidr_block        = "${cidrsubnet("${var.cidr_starting_ip}/16", 4, count.index + var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names))}"
   availability_zone = "${data.aws_availability_zones.this.names[count.index]}"
   tags              = "${merge(map("Name", "${var.env}-private-${count.index}"), map("Type", "Private"), var.tags)}"
 }
 
 resource "aws_route_table_association" "private" {
-  count          = "${length(data.aws_availability_zones.this.names)}"
+  count          = "${var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)}"
   subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
   route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
 }

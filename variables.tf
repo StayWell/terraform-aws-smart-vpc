@@ -12,3 +12,13 @@ variable "cidr_starting_ip" {
   description = "(optional) This module only creates /16 VPC CIDRs. This value will serve as the starting IP for a /16 CIDR. Example: a value of 10.0.0.0 will result in CIDR 10.0.0.0/16"
   default     = "10.0.0.0"
 }
+
+variable "az_limit" {
+  description = "(optional) Artificially limit the number of availability zones"
+  default     = "false"
+}
+
+variable "az_count" {
+  description = "(optional) Number of artificially limited availability zones"
+  default     = "1"
+}
