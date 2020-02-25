@@ -53,7 +53,7 @@ resource "aws_subnet" "public" {
   vpc_id            = "${aws_vpc.this.id}"
   cidr_block        = "${cidrsubnet("${var.cidr_starting_ip}/16", 4, count.index)}"
   availability_zone = "${data.aws_availability_zones.this.names[count.index]}"
-  tags              = "${merge(map("Name", "${var.env}-public-${count.index}"), map("Type", "Public"), var.tags)}"
+  tags              = "${merge(map("Name", "${var.env}-public-${count.index}"), map("Type", "Public"), var.tags, var.public_subnet_tags)}"
 }
 
 resource "aws_route_table_association" "public" {
@@ -96,7 +96,7 @@ resource "aws_subnet" "private" {
   vpc_id            = "${aws_vpc.this.id}"
   cidr_block        = "${cidrsubnet("${var.cidr_starting_ip}/16", 4, count.index + (var.az_limit ? var.az_count : length(data.aws_availability_zones.this.names)))}"
   availability_zone = "${data.aws_availability_zones.this.names[count.index]}"
-  tags              = "${merge(map("Name", "${var.env}-private-${count.index}"), map("Type", "Private"), var.tags)}"
+  tags              = "${merge(map("Name", "${var.env}-private-${count.index}"), map("Type", "Private"), var.tags, var.private_subnet_tags)}"
 }
 
 resource "aws_route_table_association" "private" {
